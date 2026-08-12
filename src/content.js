@@ -7,6 +7,15 @@ let rootEntries = [];
 let parentHref = null;
 let sortState = { key: "name", dir: 1 };
 
+const ICONS = {
+  folder:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>',
+  file:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+  up:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>',
+};
+
 (function main() {
   if (window.top !== window) return;
 
@@ -163,8 +172,8 @@ function renderRow(entry, isParent) {
   a.href = entry.href;
 
   const icon = document.createElement("span");
-  icon.className = "tf-icon";
-  icon.textContent = isParent ? "\u{2B06}\u{FE0F}" : entry.isDir ? "\u{1F4C1}" : "\u{1F4C4}";
+  icon.className = "tf-icon" + (entry.isDir && !isParent ? " tf-icon-dir" : "");
+  icon.innerHTML = ICONS[isParent ? "up" : entry.isDir ? "folder" : "file"];
 
   const name = document.createElement("span");
   name.className = "tf-name";
