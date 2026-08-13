@@ -13,6 +13,7 @@ Chrome extension that re-renders `file:///` directory listings as a clean, left-
 ## Features
 
 - **Sorting** — click Name/Size/Modified in the column header to sort; click again to reverse direction.
+- **Search** — filter the current folder with the search box.
 - **Left-aligned layout.**
 
 ## How it works

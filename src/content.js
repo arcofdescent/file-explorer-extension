@@ -6,6 +6,9 @@
 let rootEntries = [];
 let parentHref = null;
 let sortState = { key: "name", dir: 1 };
+let searchQuery = "";
+let listEl = null;
+let searchEl = null;
 
 const ICONS = {
   folder:
@@ -80,17 +83,38 @@ function sortEntries(entries) {
 
 function renderApp() {
   document.title = "Files — " + decodeURIComponent(location.pathname);
-  document.body.innerHTML = "";
   document.body.className = "tidy-files";
+  document.body.innerHTML = "";
 
   const app = document.createElement("div");
   app.className = "tf-app";
 
   app.appendChild(renderBreadcrumbs());
+  app.appendChild(renderToolbar());
   app.appendChild(renderColumnHeader());
-  app.appendChild(renderList(rootEntries));
+  listEl = renderList(rootEntries);
+  app.appendChild(listEl);
 
   document.body.appendChild(app);
+}
+
+function renderToolbar() {
+  const toolbar = document.createElement("div");
+  toolbar.className = "tf-toolbar";
+
+  const search = document.createElement("input");
+  search.type = "search";
+  search.className = "tf-search";
+  search.placeholder = "Search files";
+  search.value = searchQuery;
+  search.addEventListener("input", () => {
+    searchQuery = search.value;
+    updateList();
+  });
+
+  searchEl = search;
+  toolbar.appendChild(search);
+  return toolbar;
 }
 
 function renderBreadcrumbs() {
@@ -131,7 +155,7 @@ function renderColumnHeader() {
     btn.addEventListener("click", () => {
       if (sortState.key === key) sortState = { key, dir: sortState.dir * -1 };
       else sortState = { key, dir: 1 };
-      renderApp();
+      updateList();
     });
     header.appendChild(btn);
   });
@@ -139,29 +163,47 @@ function renderColumnHeader() {
   return header;
 }
 
+function updateList() {
+  if (!listEl) return;
+  const next = renderList(rootEntries);
+  listEl.replaceWith(next);
+  listEl = next;
+  if (searchEl) searchEl.focus();
+}
+
 function renderList(entries) {
   const list = document.createElement("ul");
   list.className = "tf-list";
 
-  if (parentHref) {
+  const filtered = filterEntries(entries);
+
+  if (parentHref && !searchQuery.trim()) {
     list.appendChild(
       renderRow({ name: "..", href: parentHref, isDir: true, size: "", modified: "" }, true)
     );
   }
 
-  if (entries.length === 0) {
+  if (filtered.length === 0) {
     const empty = document.createElement("li");
     empty.className = "tf-empty";
-    empty.textContent = "This folder is empty.";
+    empty.textContent = searchQuery.trim()
+      ? "No matching files."
+      : "This folder is empty.";
     list.appendChild(empty);
     return list;
   }
 
-  for (const entry of sortEntries(entries)) {
+  for (const entry of sortEntries(filtered)) {
     list.appendChild(renderRow(entry));
   }
 
   return list;
+}
+
+function filterEntries(entries) {
+  const q = searchQuery.trim().toLowerCase();
+  if (!q) return entries;
+  return entries.filter((entry) => entry.name.toLowerCase().includes(q));
 }
 
 function renderRow(entry, isParent) {
@@ -170,6 +212,7 @@ function renderRow(entry, isParent) {
 
   const a = document.createElement("a");
   a.href = entry.href;
+  if (searchQuery.trim() && !isParent) a.setAttribute("data-search-hit", "true");
 
   const icon = document.createElement("span");
   icon.className = "tf-icon" + (entry.isDir && !isParent ? " tf-icon-dir" : "");

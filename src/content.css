@@ -37,6 +37,30 @@ body.tidy-files {
   color: #9aa0a6;
 }
 
+.tf-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tf-search {
+  flex: 1 1 auto;
+  min-width: 180px;
+  border: 1px solid #d9dde3;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font: inherit;
+  background: #fff;
+  color: #1c1e21;
+}
+
+.tf-search:focus {
+  outline: none;
+  border-color: #3b6fe0;
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
+}
+
 .tf-col-header {
   display: flex;
   align-items: center;
